@@ -2142,6 +2142,21 @@
 					}
 				}
 
+				if( config.slideNumber && dom.slideNumber ) {
+					if( scale === 1 ) {
+						dom.slideNumber.style.zoom = '';
+						transformElement( dom.slideNumber, '' );
+					}
+					else if( scale > 1 && features.zoom ) {
+						dom.slideNumber.style.zoom = scale;
+						transformElement( dom.slideNumber, '' );
+					}
+					else {
+						dom.slideNumber.style.zoom = '';
+						transformElement( dom.slideNumber, 'scale('+ scale +')' );
+					}
+				}
+
 				// Select all slides, vertical and horizontal
 				var slides = toArray( dom.wrapper.querySelectorAll( SLIDES_SELECTOR ) );
 
