@@ -173,7 +173,7 @@ ul, ol, div, p {
 .reveal .slide-number-pdf {
 	display: block;
 	position: absolute;
-	font-size: 12px;
+	font-size: 16px !important;
 	background: #fff;
 	color: #000;
 }
