@@ -199,4 +199,12 @@
 		font-size: 0.8em;
 	}
 
+	/* Display slide numbers when 'slideNumber' is enabled */
+	.reveal .slide-number-pdf {
+		display: block;
+		position: absolute;
+		font-size: 12px;
+		background: #fff;
+		color: #000;
+	}
 }
