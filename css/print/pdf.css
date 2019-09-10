@@ -49,7 +49,7 @@ body, p, td, li, div {
 
 h1, h2, h3, h4, h5, h6 {
 	text-shadow: 0 0 0 #000 !important;
-	color: #000;
+	color: #000 !important;
 }
 
 .reveal pre code {
