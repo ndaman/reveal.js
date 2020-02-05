@@ -79,15 +79,12 @@
 		font-weight: bold;
 		text-decoration: underline;
 	}
-	/*
 	.reveal a:link:after,
 	.reveal a:visited:after {
 		content: " (" attr(href) ") ";
 		color: #222 !important;
 		font-size: 90%;
 	}
-	*/
-
 
 	/* SECTION 6: more reveal.js specific additions by @skypanther */
 	ul, ol, div, p {

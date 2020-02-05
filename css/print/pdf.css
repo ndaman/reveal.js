@@ -177,3 +177,8 @@ ul, ol, div, p {
 	background: #fff;
 	color: #000;
 }
+
+/* add url to all links */
+a::after{
+	content: " (" attr(href) ") ";
+}
