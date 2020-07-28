@@ -1,89 +1,92 @@
 /**
  * A plugin which enables rendering of math equations inside
- * of reveal.js slides. Essentially a thin wrapper for KaTeX.
+ * of reveal.js slides. Essentially a thin wrapper for MathJax.
  *
  * @author Hakim El Hattab
- * @author Gerhard Burger
  */
-const Plugin = () => {
-	let deck;
+var RevealMath = window.RevealMath || (function(){
 
-	let defaultOptions = {
-		version: '0.11.1',
-		delimiters: [
-			{left: '$', right: '$', display: false},
-			{left: '$$', right: '$$', display: true},
-			{left: '\\(', right: '\\)', display: false},
-			{left: '\\[', right: '\\]', display: true}
-		],
-		ignoredTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+	var options = Reveal.getConfig().math || {};
+	var mathjax = options.mathjax || 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js';
+	var config = options.config || 'TeX-AMS_HTML-full';
+	var url = mathjax + '?config=' + config;
+
+	var defaultOptions = {
+		messageStyle: 'none',
+		tex2jax: {
+			inlineMath: [ [ '$', '$' ], [ '\\(', '\\)' ] ],
+			skipTags: [ 'script', 'noscript', 'style', 'textarea', 'pre' ]
+		},
+		skipStartupTypeset: true
+	};
+
+	function defaults( options, defaultOptions ) {
+
+		for ( var i in defaultOptions ) {
+			if ( !options.hasOwnProperty( i ) ) {
+				options[i] = defaultOptions[i];
+			}
+		}
+
 	}
 
-	const loadCss = src => {
-		let link = document.createElement('link');
-		link.rel = 'stylesheet';
-		link.href = src;
-		document.head.appendChild(link);
-	};
+	function loadScript( url, callback ) {
 
-	/**
-	 * Loads a JavaScript file and returns a Promise for when it is loaded
-	 * Credits: https://aaronsmith.online/easily-load-an-external-script-using-javascript/
-	 */
-	const loadScript = src => {
-		return new Promise((resolve, reject) => {
-			const script = document.createElement('script')
-			script.type = 'text/javascript'
-			script.onload = resolve
-			script.onerror = reject
-			script.src = src
-			document.head.append(script)
-		})
-	};
+		var head = document.querySelector( 'head' );
+		var script = document.createElement( 'script' );
+		script.type = 'text/javascript';
+		script.src = url;
 
-	async function loadScripts(urls) {
-		for(const url of urls) {
-			await loadScript(url);
+		// Wrapper for callback to make sure it only fires once
+		var finish = function() {
+			if( typeof callback === 'function' ) {
+				callback.call();
+				callback = null;
+			}
 		}
+
+		script.onload = finish;
+
+		// IE
+		script.onreadystatechange = function() {
+			if ( this.readyState === 'loaded' ) {
+				finish();
+			}
+		}
+
+		// Normal browsers
+		head.appendChild( script );
+
 	}
 
 	return {
-		id: 'math',
+		init: function() {
 
-		init: function (reveal) {
+			defaults( options, defaultOptions );
+			defaults( options.tex2jax, defaultOptions.tex2jax );
+			options.mathjax = options.config = null;
 
-			deck = reveal;
+			loadScript( url, function() {
 
-			let revealOptions = deck.getConfig().math || {};
+				MathJax.Hub.Config( options );
 
-			let options = {...defaultOptions, ...revealOptions};
-			const {local, version, extensions, ...katexOptions} = options;
+				// Typeset followed by an immediate reveal.js layout since
+				// the typesetting process could affect slide height
+				MathJax.Hub.Queue( [ 'Typeset', MathJax.Hub ] );
+				MathJax.Hub.Queue( Reveal.layout );
 
-			let baseUrl = options.local || 'https://cdn.jsdelivr.net/npm/katex';
-			let versionString = options.local ? '' : '@' + options.version;
+				// Reprocess equations in slides when they turn visible
+				Reveal.addEventListener( 'slidechanged', function( event ) {
 
-			let cssUrl = baseUrl + versionString + '/dist/katex.min.css';
-			let katexUrl = baseUrl + versionString + '/dist/katex.min.js';
-			let mhchemUrl = baseUrl + versionString + '/dist/contrib/mhchem.min.js'
-			let karUrl = baseUrl + versionString + '/dist/contrib/auto-render.min.js';
+					MathJax.Hub.Queue( [ 'Typeset', MathJax.Hub, event.currentSlide ] );
 
-			let katexScripts = [katexUrl];
-			if(options.extensions && options.extensions.includes("mhchem")) {
-				katexScripts.push(mhchemUrl);
-			}
-			katexScripts.push(karUrl);
+				} );
 
-			loadCss(cssUrl);
-
-			// For some reason dynamically loading with defer attribute doesn't result in the expected behavior, the below code does
-			loadScripts(katexScripts).then(() => {
-				renderMathInElement(document.body, katexOptions);
-				deck.layout();
-			});
+			} );
 
 		}
 	}
 
-};
+})();
 
-export default Plugin;
+Reveal.registerPlugin( 'math', RevealMath );
