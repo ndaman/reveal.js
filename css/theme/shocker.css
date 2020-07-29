@@ -222,6 +222,15 @@ body {
   color: #fff;
   background: #664205; }
 
+/**
+ * disable links in MathJax refs
+ */
+.MathJax a {
+	color: black;
+	pointer-events: none;
+	cursor: default;
+}
+
 /*********************************************
  * IMAGES
  * old values:
@@ -275,7 +284,7 @@ left and right columns
   top:-10%;
   text-align: left;
   float: left;
-  width:45%;
+  width:50%;
   height:30vh;
   z-index:-10;
 }
@@ -285,7 +294,7 @@ left and right columns
   float: right;
   text-align: left;
   z-index:-10;
-  width:45%;
+  width:50%;
 }
 /*********************************************
  * PRINT BACKGROUND
